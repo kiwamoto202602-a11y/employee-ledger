@@ -129,6 +129,63 @@ tr:hover td{background:#fafaf8}
 
 /* 固定フッターバー（下部） */
 .sticky-footer{position:fixed;bottom:0;left:0;right:0;z-index:9;background:var(--surface);border-top:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;justify-content:flex-end;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+
+/* ==== モバイル対応 ==== */
+@media (max-width:768px){
+  body{font-size:13px}
+  main{padding:12px}
+  header{height:auto;min-height:52px;padding:8px 10px;gap:6px;align-items:flex-start}
+  header h1{flex:1 1 100%;font-size:14px;padding:2px 0;margin-bottom:2px}
+  .nav-btn{font-size:11px;padding:5px 9px}
+  header .btn,header .btn-sm{font-size:11px;padding:5px 9px}
+  .summary-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  .scard{padding:10px 12px}
+  .scard-val{font-size:20px}
+  .search-bar{gap:6px}
+  .search-bar>*{flex:1 1 100%;min-width:0;width:100%}
+  .field-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr}
+  .add-row{flex-direction:column;align-items:stretch}
+  .add-row>div{width:100%}
+  .add-row input,.add-row select{width:100%}
+
+  /* 一覧テーブル → カード表示 */
+  .table-wrap{border:none;background:transparent;border-radius:0;overflow-x:visible;overflow-y:visible}
+  .table-wrap table{width:100%;border-collapse:separate;border-spacing:0}
+  .table-wrap thead{display:none}
+  .table-wrap tbody,.table-wrap tr{display:block;width:100%}
+  .table-wrap tr{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;padding:12px 14px}
+  .table-wrap tr:hover td{background:transparent}
+  .table-wrap td{display:flex;align-items:flex-start;gap:10px;border:none !important;padding:6px 0;font-size:13px;white-space:normal}
+  .table-wrap td::before{content:attr(data-label);color:var(--text3);font-size:11px;font-weight:500;min-width:78px;flex-shrink:0;padding-top:2px}
+  .table-wrap td:not([data-label])::before{content:none}
+  .table-wrap td[data-main]{display:block;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid var(--border) !important;font-size:14px;font-weight:500}
+  .table-wrap td[data-actions]{display:flex;justify-content:flex-end;gap:6px;padding-top:10px;margin-top:6px;border-top:1px solid var(--border) !important}
+
+  /* 詳細画面 */
+  .sticky-back{top:0;padding:8px 12px;margin:-12px -12px 12px -12px;flex-wrap:wrap;gap:6px}
+  .sticky-back h2{font-size:14px}
+  .sticky-back span[style*="margin-left:auto"]{display:none}
+  .sticky-back .btn{font-size:11px;padding:4px 8px}
+  .tab-list{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .itab{font-size:12px;padding:8px 12px;flex:0 0 auto}
+
+  /* フォーム */
+  .form-wrap{max-width:100%}
+  .settings-card{max-width:100%;padding:16px}
+  .dept-row{flex-wrap:wrap;gap:6px}
+  .dept-row .d1,.dept-row .d2{flex:1 1 100%;min-width:0}
+  .sticky-footer{padding:8px 12px}
+  .sticky-footer .btn{font-size:12px;padding:6px 12px}
+  .yukyu-form{padding:16px}
+
+  /* ログイン */
+  .login-box{margin:16px;padding:28px 22px}
+
+  /* モーダル */
+  .modal-overlay{padding:12px}
+  .modal-box{padding:18px;max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -503,19 +560,19 @@ function renderList(){
         const rowBg=isExpired?'background:#fdf0f0':isWarn?'background:#fdf3e7':'';
         const companyBadge=e.company==='セレクト'?`<span class="badge badge-visa">セレクト</span>`:e.company==='覚善'?`<span class="badge badge-active">覚善</span>`:'<span style="color:var(--text3)">—</span>';
         return`<tr style="${rowBg}">
-          <td><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}<br><span style="font-size:11px;color:var(--text2);font-weight:400">${e.seikana||''} ${e.meikana||''}</span></span>${e.shain_no&&!showCol('shain_no')?`<br><span style="font-size:11px;color:var(--text3)">No. ${e.shain_no}</span>`:''}</td>
-          ${showCol('company')?`<td>${companyBadge}</td>`:''}
-          ${showCol('shozoku1')?`<td>${dept?.shozoku1||'—'}</td>`:''}
-          ${showCol('shozoku2')?`<td>${dept?.shozoku2||'—'}</td>`:''}
-          ${showCol('koyou')?`<td><span class="chip">${e.koyou||'—'}</span></td>`:''}
-          ${showCol('status')?`<td><span class="badge ${e.status==='在籍'?'badge-active':'badge-retired'}">${e.status||'—'}</span></td>`:''}
-          ${showCol('visa')?`<td>${vb}</td>`:''}
-          ${showCol('visa_expiry')?`<td>${el}</td>`:''}
-          ${showCol('license_expiry')?`<td>${ll}</td>`:''}
-          ${showCol('nyusha_date')?`<td style="font-size:12px">${e.nyusha_date||'—'}</td>`:''}
-          ${showCol('shain_no')?`<td style="font-size:12px;color:var(--text2)">${e.shain_no||'—'}</td>`:''}
-          ${showCol('updated_at')?`<td style="font-size:12px;color:var(--text3)">${e.updated_at||'—'}</td>`:''}
-          <td style="white-space:nowrap">
+          <td data-main><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}<br><span style="font-size:11px;color:var(--text2);font-weight:400">${e.seikana||''} ${e.meikana||''}</span></span>${e.shain_no&&!showCol('shain_no')?`<br><span style="font-size:11px;color:var(--text3)">No. ${e.shain_no}</span>`:''}</td>
+          ${showCol('company')?`<td data-label="会社">${companyBadge}</td>`:''}
+          ${showCol('shozoku1')?`<td data-label="所属1">${dept?.shozoku1||'—'}</td>`:''}
+          ${showCol('shozoku2')?`<td data-label="所属2">${dept?.shozoku2||'—'}</td>`:''}
+          ${showCol('koyou')?`<td data-label="雇用形態"><span class="chip">${e.koyou||'—'}</span></td>`:''}
+          ${showCol('status')?`<td data-label="在籍"><span class="badge ${e.status==='在籍'?'badge-active':'badge-retired'}">${e.status||'—'}</span></td>`:''}
+          ${showCol('visa')?`<td data-label="在留資格">${vb}</td>`:''}
+          ${showCol('visa_expiry')?`<td data-label="在留期限">${el}</td>`:''}
+          ${showCol('license_expiry')?`<td data-label="免許期限">${ll}</td>`:''}
+          ${showCol('nyusha_date')?`<td data-label="入社日" style="font-size:12px">${e.nyusha_date||'—'}</td>`:''}
+          ${showCol('shain_no')?`<td data-label="社員番号" style="font-size:12px;color:var(--text2)">${e.shain_no||'—'}</td>`:''}
+          ${showCol('updated_at')?`<td data-label="更新日" style="font-size:12px;color:var(--text3)">${e.updated_at||'—'}</td>`:''}
+          <td data-actions style="white-space:nowrap">
             <button class="btn btn-sm" onclick="editEmp(${e.id})">編集</button>
             <button class="btn btn-sm btn-danger" onclick="deleteEmp(${e.id})" style="margin-left:4px">削除</button>
           </td></tr>`;
@@ -625,12 +682,12 @@ function renderAlert(){
     const visaLabel=e.visa_expiry&&vd<90?(vd<0?`<span class="badge badge-danger">在留 期限切れ</span>`:`<span class="badge badge-warn">在留 残${vd}日</span>`):'';
     const licLabel=e.license_expiry&&ld<90?(ld<0?`<span class="badge badge-danger">免許 期限切れ</span>`:`<span class="badge badge-warn">免許 残${ld}日</span>`):'';
     return`<tr style="${rowBg}">
-      <td><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}<br><span style="font-size:11px;color:var(--text2)">${e.seikana||''} ${e.meikana||''}</span></span></td>
-      <td>${dept?.shozoku1||'—'}</td>
-      <td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding-top:12px">${visaLabel}${licLabel}</td>
-      <td style="font-size:12px">${e.visa_expiry&&vd<90?e.visa_expiry:'—'}</td>
-      <td style="font-size:12px">${e.license_expiry&&ld<90?e.license_expiry:'—'}</td>
-      <td><button class="btn btn-sm" onclick="editEmp(${e.id})">編集</button></td>
+      <td data-main><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}<br><span style="font-size:11px;color:var(--text2)">${e.seikana||''} ${e.meikana||''}</span></span></td>
+      <td data-label="所属">${dept?.shozoku1||'—'}</td>
+      <td data-label="警告" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding-top:12px">${visaLabel}${licLabel}</td>
+      <td data-label="在留期限" style="font-size:12px">${e.visa_expiry&&vd<90?e.visa_expiry:'—'}</td>
+      <td data-label="免許期限" style="font-size:12px">${e.license_expiry&&ld<90?e.license_expiry:'—'}</td>
+      <td data-actions><button class="btn btn-sm" onclick="editEmp(${e.id})">編集</button></td>
     </tr>`;
   };
 
@@ -648,10 +705,10 @@ function renderAlert(){
           const dept=departments.find(d=>d.id===Number(e.dept_id));
           const unsetGrants=yukyuGrants.filter(g=>g.employee_id===e.id&&(g.days===null||g.days===undefined||g.days==='')&&g.grant_date<=todayStr);
           return`<tr style="background:var(--warn-light)">
-            <td><span class="emp-name" onclick="detailTab='yukyu';viewDetail(${e.id})">${e.sei} ${e.mei}</span></td>
-            <td>${dept?.shozoku1||'—'}</td>
-            <td style="font-size:12px">${unsetGrants.map(g=>g.grant_date).join('、')}</td>
-            <td><button class="btn btn-sm" onclick="detailTab='yukyu';viewDetail(${e.id})">付与設定へ</button></td>
+            <td data-main><span class="emp-name" onclick="detailTab='yukyu';viewDetail(${e.id})">${e.sei} ${e.mei}</span></td>
+            <td data-label="所属">${dept?.shozoku1||'—'}</td>
+            <td data-label="未設定の付与日" style="font-size:12px">${unsetGrants.map(g=>g.grant_date).join('、')}</td>
+            <td data-actions><button class="btn btn-sm" onclick="detailTab='yukyu';viewDetail(${e.id})">付与設定へ</button></td>
           </tr>`;
         }).join('')}
         </tbody>
@@ -1275,11 +1332,11 @@ function renderKenkoList(){
     <div class="table-wrap"><table>
       <thead><tr><th>受診日</th><th>氏名</th><th>結果</th><th>写真</th><th></th></tr></thead>
       <tbody>${allRecs.map(r=>`<tr>
-        <td style="font-size:13px">${r.date||'—'}</td>
-        <td><span class="emp-name" onclick="viewDetail(${r.empId})">${r.empName}<br><span style="font-size:11px;color:var(--text2)">${r.empKana.trim()}</span></span></td>
-        <td><span class="badge ${r.result==='異常なし'?'badge-active':r.result==='要精密検査'?'badge-danger':'badge-warn'}">${r.result||'—'}</span></td>
-        <td>${r.img?`<img src="${r.img}" style="height:36px;border-radius:4px;cursor:pointer" onclick="window.open('${r.img}')">`:'—'}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="delKenkoFromList(${r.empId},${r.idx})">削除</button></td>
+        <td data-main style="font-size:13px">${r.date||'—'}</td>
+        <td data-label="氏名"><span class="emp-name" onclick="viewDetail(${r.empId})">${r.empName}<br><span style="font-size:11px;color:var(--text2)">${r.empKana.trim()}</span></span></td>
+        <td data-label="結果"><span class="badge ${r.result==='異常なし'?'badge-active':r.result==='要精密検査'?'badge-danger':'badge-warn'}">${r.result||'—'}</span></td>
+        <td data-label="写真">${r.img?`<img src="${r.img}" style="height:36px;border-radius:4px;cursor:pointer" onclick="window.open('${r.img}')">`:'—'}</td>
+        <td data-actions><button class="btn btn-sm btn-danger" onclick="delKenkoFromList(${r.empId},${r.idx})">削除</button></td>
       </tr>`).join('')}
       </tbody>
     </table></div>`}`;
@@ -1350,12 +1407,12 @@ function renderYukyuList(){
       <tbody>${activeEmps.map(e=>{
         const info=calcYukyuInfo(e.id);
         return`<tr>
-          <td><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}</span></td>
-          <td><span style="font-weight:700;color:${info.remaining>0?'#1a5c30':'var(--text2)'}">${info.remaining}日</span></td>
-          <td style="font-size:13px">${info.granted}日</td>
-          <td style="font-size:13px">${info.used}日</td>
-          <td style="font-size:12px;color:var(--text2)">${info.nextDate||'—'}</td>
-          <td><button class="btn btn-sm" onclick="detailTab='yukyu';viewingId=${e.id};currentView='detail';render()">詳細</button></td>
+          <td data-main><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}</span></td>
+          <td data-label="残日数"><span style="font-weight:700;color:${info.remaining>0?'#1a5c30':'var(--text2)'}">${info.remaining}日</span></td>
+          <td data-label="付与合計" style="font-size:13px">${info.granted}日</td>
+          <td data-label="取得合計" style="font-size:13px">${info.used}日</td>
+          <td data-label="次回付与日" style="font-size:12px;color:var(--text2)">${info.nextDate||'—'}</td>
+          <td data-actions><button class="btn btn-sm" onclick="detailTab='yukyu';viewingId=${e.id};currentView='detail';render()">詳細</button></td>
         </tr>`;
       }).join('')}
       </tbody>
@@ -1373,15 +1430,15 @@ function renderYukyuList(){
     <div class="table-wrap"><table>
       <thead><tr><th>使用日</th><th>氏名</th><th>使用内容</th><th>種別</th><th>区分</th><th>入力者</th><th>登録日</th><th>備考</th><th></th></tr></thead>
       <tbody>${list.map(r=>`<tr>
-        <td>${r.use_date||'—'}</td>
-        <td><span class="emp-name" onclick="viewDetail(${r.employee_id})">${r.employee_name||'—'}</span></td>
-        <td><span class="badge badge-visa">${r.use_type||'—'}</span></td>
-        <td><span class="chip">${r.shubetsu||'—'}</span></td>
-        <td><span class="chip">${r.kubun||'—'}</span></td>
-        <td>${r.input_by||'—'}</td>
-        <td style="font-size:12px;color:var(--text3)">${r.touroku_date||'—'}</td>
-        <td style="font-size:12px;color:var(--text2);max-width:140px">${r.biko||''}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="delYR(${r.id})">削除</button></td>
+        <td data-main>${r.use_date||'—'}</td>
+        <td data-label="氏名"><span class="emp-name" onclick="viewDetail(${r.employee_id})">${r.employee_name||'—'}</span></td>
+        <td data-label="使用内容"><span class="badge badge-visa">${r.use_type||'—'}</span></td>
+        <td data-label="種別"><span class="chip">${r.shubetsu||'—'}</span></td>
+        <td data-label="区分"><span class="chip">${r.kubun||'—'}</span></td>
+        <td data-label="入力者">${r.input_by||'—'}</td>
+        <td data-label="登録日" style="font-size:12px;color:var(--text3)">${r.touroku_date||'—'}</td>
+        <td data-label="備考" style="font-size:12px;color:var(--text2);max-width:140px">${r.biko||''}</td>
+        <td data-actions><button class="btn btn-sm btn-danger" onclick="delYR(${r.id})">削除</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`}`;
 }
