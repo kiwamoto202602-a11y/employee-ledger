@@ -238,7 +238,7 @@ const ALL_COLS=[
   {key:'updated_at',label:'更新日',default:true},
 ];
 let visibleCols=ALL_COLS.filter(c=>c.default).map(c=>c.key);
-try{const s=localStorage.getItem('emp_cols');if(s)visibleCols=JSON.parse(s);}catch(e){}
+try{const s=localStorage.getItem('visibleCols');if(s)visibleCols=JSON.parse(s);}catch(e){}
 
 // 現在フィルター済みの従業員リスト（前後移動用）
 let currentFilteredList=[];
@@ -315,7 +315,11 @@ function calcYukyuInfo(empId){
 
   // 取得日数
   const recs=yukyuRecords.filter(r=>r.employee_id===empId);
-  const used=recs.reduce((s,r)=>s+(r.use_type==='全日'?1:0.5),0);
+  const used=recs.reduce((s,r)=>{
+    if(r.use_type==='全日')return s+1;
+    if(r.use_type&&r.use_type.startsWith('半休'))return s+0.5;
+    return s;
+  },0);
   const remaining=Math.max(0,granted-used);
 
   // 次回付与日
@@ -438,7 +442,7 @@ function renderList(){
   currentFilteredList=[...list];
 
   const today=new Date(),total=employees.length,active=employees.filter(e=>e.status==='在籍').length;
-  const warn=employees.filter(e=>{if(!e.visa_expiry)return false;return(new Date(e.visa_expiry)-today)/86400000<90;}).length;
+  const warn=employees.filter(e=>{if(!e.visa_expiry)return false;return Math.round((new Date(e.visa_expiry)-today)/86400000)<90;}).length;
   const selectCnt=employees.filter(e=>e.company==='セレクト').length;
   const kakuzenCnt=employees.filter(e=>e.company==='覚善').length;
 
@@ -618,7 +622,7 @@ function renderAlert(){
     const ld=e.license_expiry?Math.round((new Date(e.license_expiry)-today)/86400000):null;
     const isExpired=(vd!==null&&vd<0)||(ld!==null&&ld<0);
     const rowBg=isExpired?'background:#fdf0f0':'background:#fdf3e7';
-    const visaLabel=e.visa_expiry?(vd<0?`<span class="badge badge-danger">在留 期限切れ</span>`:`<span class="badge badge-warn">在留 残${vd}日</span>`):'';
+    const visaLabel=e.visa_expiry&&vd<90?(vd<0?`<span class="badge badge-danger">在留 期限切れ</span>`:`<span class="badge badge-warn">在留 残${vd}日</span>`):'';
     const licLabel=e.license_expiry&&ld<90?(ld<0?`<span class="badge badge-danger">免許 期限切れ</span>`:`<span class="badge badge-warn">免許 残${ld}日</span>`):'';
     return`<tr style="${rowBg}">
       <td><span class="emp-name" onclick="viewDetail(${e.id})">${e.sei} ${e.mei}<br><span style="font-size:11px;color:var(--text2)">${e.seikana||''} ${e.meikana||''}</span></span></td>
@@ -1051,12 +1055,13 @@ async function addShikaku(id){
 }
 async function delShikaku(id,i){
   const e=employees.find(x=>x.id===id);
+  e.shikaku_list=e.shikaku_list||[];
   e.shikaku_list.splice(i,1);e.updated_at=new Date().toISOString().slice(0,10);
   await sb('employees?id=eq.'+id,'PATCH',{shikaku_list:e.shikaku_list,updated_at:e.updated_at});renderDT();
 }
 
 async function delKenko(id,i){
-  const e=employees.find(x=>x.id===id);e.kenkou_list.splice(i,1);e.updated_at=new Date().toISOString().slice(0,10);
+  const e=employees.find(x=>x.id===id);e.kenkou_list=e.kenkou_list||[];e.kenkou_list.splice(i,1);e.updated_at=new Date().toISOString().slice(0,10);
   await sb('employees?id=eq.'+id,'PATCH',{kenkou_list:e.kenkou_list,updated_at:e.updated_at});renderDT();
 }
 function previewKI(input){
@@ -1067,6 +1072,7 @@ function previewKI(input){
 async function addKenko(id){
   const e=employees.find(x=>x.id===id),d=document.getElementById('kd').value;
   if(!d){alert('受診日を入力してください');return;}
+  e.kenkou_list=e.kenkou_list||[];
   e.kenkou_list.push({date:d,result:document.getElementById('kr').value,img:kenkoImgData});
   kenkoImgData='';e.updated_at=new Date().toISOString().slice(0,10);
   await sb('employees?id=eq.'+id,'PATCH',{kenkou_list:e.kenkou_list,updated_at:e.updated_at});renderDT();
@@ -1230,17 +1236,17 @@ function renderKenkoList(){
           <div style="font-size:12px;color:var(--text2);margin-bottom:4px">従業員</div>
           <select id="kfEmp" style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit">
             <option value="">選択してください</option>
-            ${employees.filter(e=>e.status==='在籍').map(e=>`<option value="${e.id}">${e.sei} ${e.mei}</option>`).join('')}
+            ${employees.filter(e=>e.status==='在籍').map(e=>`<option value="${e.id}" ${String(kfEmp)===String(e.id)?'selected':''}>${e.sei} ${e.mei}</option>`).join('')}
           </select>
         </div>
         <div>
           <div style="font-size:12px;color:var(--text2);margin-bottom:4px">受診日</div>
-          <input type="date" id="kfDate" value="${new Date().toISOString().slice(0,10)}" style="padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit">
+          <input type="date" id="kfDate" value="${kfDate}" style="padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit">
         </div>
         <div>
           <div style="font-size:12px;color:var(--text2);margin-bottom:4px">結果</div>
           <select id="kfResult" style="padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit">
-            ${CHECKRES.map(r=>`<option>${r}</option>`).join('')}
+            ${CHECKRES.map(r=>`<option ${r===kfResult?'selected':''}>${r}</option>`).join('')}
           </select>
         </div>
         <div>
@@ -1303,6 +1309,7 @@ async function addKenkoFromList(){
 async function delKenkoFromList(empId,idx){
   if(!confirm('この健康診断記録を削除しますか？'))return;
   const e=employees.find(x=>x.id===empId);
+  e.kenkou_list=e.kenkou_list||[];
   e.kenkou_list.splice(idx,1);
   e.updated_at=new Date().toISOString().slice(0,10);
   await sb('employees?id=eq.'+empId,'PATCH',{kenkou_list:e.kenkou_list,updated_at:e.updated_at});
