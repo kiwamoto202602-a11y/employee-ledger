@@ -90,9 +90,10 @@ tr:hover td{background:#fafaf8}
 .modal-box .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .detail-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .detail-header h2{font-size:18px;font-weight:700}
-.tab-list{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto}
-.itab{padding:9px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;background:transparent;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap}
-.itab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.tab-list{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.itab{padding:9px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:3px solid transparent;margin-bottom:-2px;background:transparent;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap;border-radius:var(--radius) var(--radius) 0 0}
+.itab.active{color:var(--accent-text);border-bottom-color:var(--accent);font-weight:700;background:var(--accent-light)}
+.itab:hover:not(.active){background:var(--bg);color:var(--text)}
 .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .detail-field{display:flex;flex-direction:column;gap:3px}
 .detail-label{font-size:11px;color:var(--text3);font-weight:500}
